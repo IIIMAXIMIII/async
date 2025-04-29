@@ -5,21 +5,21 @@ const API = {
     buhForms: "/api3/buh",
 };
 
-function run() {
-    sendRequest(API.organizationList, (orgOgrns) => {
-        const ogrns = orgOgrns.join(",");
-        sendRequest(`${API.orgReqs}?ogrn=${ogrns}`, (requisites) => {
-            const orgsMap = reqsToMap(requisites);
-            sendRequest(`${API.analytics}?ogrn=${ogrns}`, (analytics) => {
-                addInOrgsMap(orgsMap, analytics, "analytics");
-                sendRequest(`${API.buhForms}?ogrn=${ogrns}`, (buh) => {
-                    addInOrgsMap(orgsMap, buh, "buhForms");
-                    render(orgsMap, orgOgrns);
-                });
-            });
-        });
-    });
-}
+// function run() {
+//     sendRequest(API.organizationList, (orgOgrns) => {
+//         const ogrns = orgOgrns.join(",");
+//         sendRequest(`${API.orgReqs}?ogrn=${ogrns}`, (requisites) => {
+//             const orgsMap = reqsToMap(requisites);
+//             sendRequest(`${API.analytics}?ogrn=${ogrns}`, (analytics) => {
+//                 addInOrgsMap(orgsMap, analytics, "analytics");
+//                 sendRequest(`${API.buhForms}?ogrn=${ogrns}`, (buh) => {
+//                     addInOrgsMap(orgsMap, buh, "buhForms");
+//                     render(orgsMap, orgOgrns);
+//                 });
+//             });
+//         });
+//     });
+// }
 
 async function runAsync() {
     try {
@@ -44,39 +44,34 @@ async function runAsync() {
 
 runAsync();
 
-function sendRequest(url, callback) {
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                callback(JSON.parse(xhr.response));
-            }
-        }
-    };
-
-    xhr.send();
-}
+// function sendRequest(url, callback) {
+//     const xhr = new XMLHttpRequest();
+//     xhr.open("GET", url, true);
+//
+//     xhr.onreadystatechange = function () {
+//         if (xhr.readyState === XMLHttpRequest.DONE) {
+//             if (xhr.status === 200) {
+//                 callback(JSON.parse(xhr.response));
+//             }
+//         }
+//     };
+//
+//     xhr.send();
+// }
 
 
 function sendRequestPromise(url) {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    resolve(JSON.parse(xhr.response));
-                } else {
-                    reject(new Error(xhr.status));
-                }
+    return fetch(url)
+        .then(response => {
+            if (response.status !== 200) {
+                throw new Error(response.status);
             }
-        };
 
-        xhr.send();
-    })
+            return response.json();
+        })
+        .catch(error => {
+            throw error;
+        });
 }
 
 function reqsToMap(requisites) {
